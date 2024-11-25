@@ -448,10 +448,10 @@ PYBIND11_NOINLINE std::string error_string() {
         while (frame) {
             int lineno = PyFrame_GetLineNumber(frame);
             errorString +=
-                "  " + handle(frame->f_code->co_filename).cast<std::string>() +
+                "  " + handle(PyFrame_GetCode(frame)->co_filename).cast<std::string>() +
                 "(" + std::to_string(lineno) + "): " +
-                handle(frame->f_code->co_name).cast<std::string>() + "\n";
-            frame = frame->f_back;
+                handle(PyFrame_GetCode(frame)->co_name).cast<std::string>() + "\n";
+            frame = PyFrame_GetBack(frame);
         }
     }
 #endif

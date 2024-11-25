@@ -2235,12 +2235,12 @@ inline function get_type_override(const void *this_ptr, const type_info *this_ty
     /* Don't call dispatch code if invoked from overridden function.
        Unfortunately this doesn't work on PyPy. */
 #if !defined(PYPY_VERSION)
-    PyFrameObject *frame = PyThreadState_Get()->frame;
-    if (frame != nullptr && (std::string) str(frame->f_code->co_name) == name
-        && frame->f_code->co_argcount > 0) {
+    PyFrameObject *frame = PyThreadState_GetFrame(PyThreadState_Get());
+    if (frame != nullptr && (std::string) str(PyFrame_GetCode(frame)->co_name) == name
+        && PyFrame_GetCode(frame)->co_argcount > 0) {
         PyFrame_FastToLocals(frame);
         PyObject *self_caller = dict_getitem(
-            frame->f_locals, PyTuple_GET_ITEM(frame->f_code->co_varnames, 0));
+            PyFrame_GetLocals(frame), PyTuple_GET_ITEM(PyCode_GetVarnames(PyFrame_GetCode(frame)), 0));
         if (self_caller == self.ptr())
             return function();
     }
